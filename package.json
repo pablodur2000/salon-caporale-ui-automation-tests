@@ -1,0 +1,19 @@
+{
+  "name": "salon-caporale-ui-automation-tests",
+  "version": "1.0.0",
+  "private": true,
+  "description": "UI automation framework for Salón Caporale (Playwright + TypeScript)",
+  "author": "Pablo Durán",
+  "license": "ISC",
+  "type": "commonjs",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^26.6.2"
+  }
+}
