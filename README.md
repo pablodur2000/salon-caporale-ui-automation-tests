@@ -15,8 +15,18 @@ a barbershop website in production, built with Playwright and TypeScript.
 ```bash
 npm install
 npx playwright install chromium
+cp .env.example .env   # optional: without it, tests run against prod
 npm test
 ```
+
+## Environments and suites
+
+| Suite | Folder | Writes data? | Runs against |
+|---|---|---|---|
+| `public` | `tests/public/` | No | any environment; prod by default |
+| `admin` | `tests/admin/` | Yes | **dev only** (not wired up yet) |
+
+Set `BASE_URL` in `.env` to choose the site under test. See `.env.example`.
 
 | Script | What it does |
 |---|---|
