@@ -29,7 +29,8 @@ tests/admin/  writes data, dev only
 docs/qa-knowledge/  the practices behind the rules above, with good and bad examples
 ```
 
-Tests import `test` and `expect` from `fixtures/`, **not** from `@playwright/test`.
+Tests import `test` and `expect` from `fixtures/`, **not** from `@playwright/test`
+(setup files, `*.setup.ts`, are the exception).
 
 ## Knowledge base
 

@@ -85,31 +85,66 @@ projects: [
 
 (The labels above are placeholders. Copy the real ones from `/admin`.)
 
+Setup files (`*.setup.ts`) are the one exception to "import from `fixtures/`": they run
+before everything else, need none of the page-object fixtures, and import from
+`@playwright/test` directly.
+
 **Security:** `playwright/.auth/` holds live session cookies. It's in `.gitignore` and
 must **never** be committed, least of all in this public repo.
 
 ## 4. The environment guard for the admin suite
 
-The admin suite writes data, so it must refuse to run against prod. Put the check in the
-admin setup project, so it runs before any admin test and no one can forget it:
+The admin suite writes data, so it must refuse to run against prod. Two layers, because
+either one alone has a hole.
+
+**Layer 1: allow only known dev hosts (in the admin setup).** An allowlist, not a list of
+prod hosts to block: a prod domain nobody added to a blocklist (say, the future custom
+domain) would sail through. With an allowlist, forgetting to update it makes the suite
+*refuse* to run, which is the safe failure. Check the `baseURL` the tests actually use,
+not the raw env var, which may be unset while the config falls back to a default.
 
 ```ts
-// tests/admin/auth.setup.ts (top of file)
-const PROD_HOSTS = ['salon-caporale-v2-zeta.vercel.app' /* + the custom domain */];
+// tests/admin/auth.setup.ts
+const DEV_HOSTS = ['salon-caporale-v2-git-develop-pablos-projects-553b98e7.vercel.app'];
 
-const host = new URL(process.env.BASE_URL!).host;
-if (PROD_HOSTS.includes(host)) {
-  throw new Error(`Admin suite refuses to run against prod (${host}).`);
-}
+setup('log in as admin', async ({ page, baseURL }) => {
+  if (!baseURL) throw new Error('BASE_URL is not set: the admin suite needs an explicit dev URL.');
+  const host = new URL(baseURL).host;
+  if (!DEV_HOSTS.includes(host)) {
+    throw new Error(`Admin suite only runs on dev hosts, got ${host}.`);
+  }
+  // … login as above
+});
 ```
 
 Because every admin test depends on `admin-setup`, a failure here stops the whole
 admin suite.
 
+**Layer 2: block the prod database at the network level (an auto fixture for admin tests).**
+The host says nothing about which database the page writes to: a preview deployment can
+be built with prod Supabase keys (this one was, until 2026-09-25). So every admin test
+aborts any request to the prod Supabase project:
+
+```ts
+// fixtures/admin.ts
+const PROD_SUPABASE = 'https://lztrsykidcqwsmeexwsf.supabase.co/**';
+
+export const test = base.extend<{ blockProdDatabase: void }>({
+  blockProdDatabase: [async ({ context }, use) => {
+    await context.route(PROD_SUPABASE, (route) => route.abort());
+    await use();
+  }, { auto: true }],
+});
+```
+
+A misconfigured deployment then makes the admin tests fail instead of editing real content.
+
 ## 5. Secrets
 
 - Credentials come from `.env` locally and from GitHub Secrets in CI. They're never in
   code, never in a report, and never in a commit.
+- This includes `VERCEL_AUTOMATION_BYPASS_SECRET`, which lets tests past Vercel's
+  deployment protection on the dev URL (see [app-under-test.md](app-under-test.md)).
 - `.env.example` lists the variable **names** with empty values.
 
 ## 6. Test data
@@ -117,3 +152,7 @@ admin suite.
 - The public suite is read-only, so it needs no test data.
 - The admin suite starts from a **known state**: reset the dev DB before the run
   (`seed-all.js --only=<table>` in the app repo), and never rely on data another test created.
+
+> ⚠️ **`seed-all.js` has no prod guard yet.** Each step deletes and reseeds its tables with
+> the Supabase **service-role** key. Run it only with **dev** credentials, and add a guard
+> to the script before any CI job calls it.

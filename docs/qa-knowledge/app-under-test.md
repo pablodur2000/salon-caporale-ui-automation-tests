@@ -3,6 +3,25 @@
 Quirks of the site that affect how tests are written. Checked against the app repo
 (`pablodur2000/salon-caporale-v2`, `main`) on 2026-09-24. **Re-check when the app changes.**
 
+## Environments
+
+Checked 2026-09-25 by reading which Supabase project each deployment's JS bundle calls.
+
+| Env | URL | Supabase project | Who uses it |
+|---|---|---|---|
+| **Prod** | https://salon-caporale-v2-zeta.vercel.app | `lztrsykidcqwsmeexwsf` | real visitors; Ignacio edits content here |
+| **Dev** | https://salon-caporale-v2-git-develop-pablos-projects-553b98e7.vercel.app | `ehcqftnfshvhhljkzpjv` | our tests; safe to write |
+
+- **Dev is the stable alias of the app's `develop` branch** on Vercel: it always serves the
+  latest `develop` deploy. Per-deploy URLs (`salon-caporale-v2-<hash>-…`) change every time,
+  so never point tests at them.
+- Vercel **Preview** deployments are built with the **dev** Supabase variables (`VITE_SUPABASE_URL`
+  and `VITE_SUPABASE_ANON_KEY` scoped to Preview), Production with the prod ones. If a
+  preview ever shows prod data, that scoping has been undone.
+- Previews sit behind **Vercel Deployment Protection**: without auth they answer `302` to a
+  login page. Tests send the header `x-vercel-protection-bypass: <secret>`, with the secret
+  in `VERCEL_AUTOMATION_BYPASS_SECRET` (`.env` locally, GitHub Secrets in CI).
+
 ## Routes
 
 | Path | Page | Notes |

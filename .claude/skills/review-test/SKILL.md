@@ -10,8 +10,8 @@ this list. For each problem, report **file:line → broken rule → suggested fi
 the doc in `docs/qa-knowledge/`. Rank safety issues first.
 
 ## 🔴 Safety (block the PR)
-- [ ] Nothing in `tests/admin/` can run against prod. The prod-host guard in the admin
-      setup is present and not bypassed.
+- [ ] Nothing in `tests/admin/` can run against prod. The dev-host allowlist in the admin
+      setup and the prod-database block fixture are present and not bypassed.
 - [ ] No credentials, tokens or `playwright/.auth/` files committed. Secrets come from
       env vars only.
 - [ ] Public tests don't write data (no admin actions, no form submissions that create records).
@@ -39,7 +39,8 @@ the doc in `docs/qa-knowledge/`. Rank safety issues first.
 - [ ] Content editable from the admin isn't hardcoded unless it's the point of the test.
 
 ## 🟡 Conventions
-- [ ] `test`/`expect` imported from `fixtures/`.
+- [ ] `test`/`expect` imported from `fixtures/` (setup files, `*.setup.ts`, import from
+      `@playwright/test`).
 - [ ] Test names describe behavior as a sentence.
 - [ ] Branch, commit and PR carry the `CAPOQA-N` key.
 

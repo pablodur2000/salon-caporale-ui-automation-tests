@@ -3,6 +3,9 @@
 A page object describes **what a user can see and do** on one page. The test decides
 **what should be true**. Keeping those two apart is the whole point of the pattern.
 
+Names in the examples (`'Reservá tu cita'`, `'Servicios'`, …) are illustrative. Copy the
+real ones from the page.
+
 ## 1. Locators are `readonly` fields set in the constructor
 
 **Why:** each element is defined once. When the UI changes, you fix one line.
@@ -69,8 +72,17 @@ async openPaymentDetails(name: string) {
 ```
 
 **The one exception:** a page object may **wait for itself to be ready** when that's part
-of the action, as long as it expresses no pass/fail opinion. Prefer a locator the test
-asserts on, and treat this as a last resort.
+of the action, as long as it expresses no pass/fail opinion. Use `locator.waitFor()`,
+never `expect`:
+
+```ts
+async goto() {
+  await this.page.goto('/');
+  await this.loader.waitFor({ state: 'hidden' }); // "opened" means usable, not a check
+}
+```
+
+Prefer a locator the test asserts on, and treat this as a last resort.
 
 ## 3. Methods are user intentions, not renamed clicks
 
@@ -98,8 +110,11 @@ several routes. Pages *compose* components:
 
 ```ts
 export class HomePage {
+  readonly page: Page;
   readonly header: Header;
-  constructor(readonly page: Page) {
+
+  constructor(page: Page) {
+    this.page = page;
     this.header = new Header(page);
   }
 }

@@ -1,5 +1,8 @@
 # Locators
 
+Names in the examples (`'Enviar'`, `'Servicios'`, …) are illustrative. Copy the real ones
+from the page.
+
 ## 1. Priority order
 
 Use the first one that works:

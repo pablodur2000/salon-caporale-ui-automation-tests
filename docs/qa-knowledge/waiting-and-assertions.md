@@ -34,6 +34,9 @@ times. Wait for what the user would see.
 ❌ `await btn.waitFor(); await btn.click();`
 ✅ `await btn.click();`
 
+**Why:** `click()` already waits for the element to be visible, stable, enabled and
+unobstructed. The extra line adds nothing, and it teaches readers that actions need help.
+
 ## 5. Don't `force` clicks
 
 ❌ `await btn.click({ force: true });`
@@ -70,6 +73,9 @@ plain `expect(locator)` is better.
 
 ✅ `await expect(modal).toBeHidden();`
 ❌ `await expect(modal).not.toBeVisible();`
+
+**Why:** readability only. Both retry and both are reliable, so `not.toBeVisible()` isn't
+a bug. A positive statement just says what should be true more directly.
 
 ## 9. Every test asserts something
 
