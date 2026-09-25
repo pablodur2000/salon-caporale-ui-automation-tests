@@ -6,3 +6,11 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# Secrets (public repo): only .env.example is committed
+.env
+.env.*
+!.env.example
+
+# Claude Code: personal settings stay local; skills and CLAUDE.md are shared
+.claude/settings.local.json
