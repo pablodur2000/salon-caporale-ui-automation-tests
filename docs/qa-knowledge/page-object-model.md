@@ -100,6 +100,9 @@ map into every class. The fixture layer already hands the test every page object
 ✅ `async startBooking(): Promise<void>`
 ❌ `async startBooking(): Promise<ReservePage> { …; return new ReservePage(this.page); }`
 
+**Exception:** `goto()` may return the navigation `Response` (data, not a page object), so
+a test can assert the HTTP status: `expect((await homePage.goto())?.status()).toBe(200)`.
+
 ## 5. Shared UI is a component, not copy-pasted
 
 **Rule of the second appearance:** the second time you're about to paste a locator into
