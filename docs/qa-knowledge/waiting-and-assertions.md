@@ -99,3 +99,30 @@ await expect.soft(page.locator('meta[name="description"]')).toHaveAttribute('con
 
 **Why:** serial dependencies hide failures (test 2 fails because of test 1) and rule out
 parallel runs.
+
+## 12. An assertion has to be able to fail
+
+§9 asks for *an* assertion. This asks for one that means something. The three ways a
+test passes without checking anything:
+
+**Always true.** A locator object is truthy whether or not the element exists.
+
+❌ `expect(page.getByRole('heading')).toBeTruthy();`
+✅ `await expect(page.getByRole('heading', { name: 'Servicios' })).toBeVisible();`
+
+**True everywhere.** The header and footer render on every route, so asserting them
+proves the app booted — not that you're on the page the test names.
+
+❌ in a home-page test: `await expect(header.logo).toBeVisible();` and nothing else
+✅ assert something only the home page has, then the shared parts if you want them
+
+**Never runs.** `expect.soft` returns a promise. Unawaited, it neither waits nor reports,
+and the test passes green with the assertion silently skipped.
+
+❌ `expect.soft(page).toHaveTitle(/Curso/);`
+✅ `await expect.soft(page).toHaveTitle(/Curso/);`
+
+And the check that catches all three at once: **break it on purpose and watch it go red.**
+Change the expected text to something absent, run, confirm the failure message tells you
+what happened, revert. A test that has only ever been seen green is not known to work.
+`/review-test` makes this a required stop.
