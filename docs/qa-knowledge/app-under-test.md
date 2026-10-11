@@ -37,6 +37,19 @@ It's an SPA: an unknown path still returns **HTTP 200** and renders blank (Verce
 everything to `index.html`). A status check alone can't catch a broken route. Assert on
 visible content.
 
+## Header and headings (checked 2026-09-25)
+
+- **The home page has no `<h1>`.** Every section title is an `h2`. Tests use the
+  hardcoded "Servicios" `h2` as the main heading. (An SEO and accessibility bug.)
+- **`<header>` is rendered inside `<main>`**, so it has no `banner` role and
+  `getByRole('banner')` finds nothing. The `Header` component locates it by `#header`.
+- **The logo link has no accessible name** (its images use `alt=""`), so it's reached as
+  "the link inside the header". It should have an `aria-label` or a real alt text.
+- **The "¡Reservá tu cita aquí!" link has a 0×0 box**: its only child is `position: fixed`,
+  so Playwright calls the `<a>` hidden. Assert on or click the heading inside it.
+- **The menu toggle is a `<div>` with an icon**, with no role or name, and the `<nav>` is
+  `aria-hidden` while closed. Opening the menu will need a CSS exception like the popup's.
+
 ## Loading screen (`/` and `/curse`)
 
 The page shows a full-screen loader while data loads from Supabase:
