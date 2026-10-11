@@ -8,7 +8,7 @@ and the skills in `.claude/skills/` point here.
 |---|---|
 | [page-object-model.md](page-object-model.md) | What goes in a page object, components, naming, what never goes in one |
 | [locators.md](locators.md) | Locator priority, strictness, filtering, Spanish UI text |
-| [waiting-and-assertions.md](waiting-and-assertions.md) | Web-first assertions, hard waits, flakiness |
+| [waiting-and-assertions.md](waiting-and-assertions.md) | Web-first assertions, hard waits, flakiness, assertions that can actually fail |
 | [fixtures-and-auth.md](fixtures-and-auth.md) | `test.extend`, fixtures vs `beforeEach`, `storageState` login, environment guards |
 | [app-under-test.md](app-under-test.md) | Quirks of the Caporale site that affect tests |
 | [sources.md](sources.md) | Where each rule comes from |

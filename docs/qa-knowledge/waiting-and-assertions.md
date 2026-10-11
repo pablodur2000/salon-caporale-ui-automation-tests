@@ -99,3 +99,37 @@ await expect.soft(page.locator('meta[name="description"]')).toHaveAttribute('con
 
 **Why:** serial dependencies hide failures (test 2 fails because of test 1) and rule out
 parallel runs.
+
+## 12. An assertion has to be able to fail
+
+§9 asks for *an* assertion. This asks for one that means something. Two ways a test
+passes without checking anything, and one way it checks at the wrong moment:
+
+**Always true.** A locator object is truthy whether or not the element exists.
+
+❌ `expect(page.getByRole('heading')).toBeTruthy();`
+✅ `await expect(page.getByRole('heading', { name: 'Servicios' })).toBeVisible();`
+
+**True everywhere.** The header and footer render on every route, so asserting them
+proves the app booted — not that you're on the page the test names.
+
+❌ in a home-page test: `await expect(header.logo).toBeVisible();` and nothing else
+✅ assert something only the home page has, then the shared parts if you want them
+
+**Not awaited.** Web-first assertions (on a `page` or a locator, soft ones included) return
+a promise because they retry until the page is ready. Without `await`, the test doesn't
+wait for them: the next steps run against a page that may not be ready, and a failure
+surfaces late, out of order, and attached to the wrong step. (Playwright 1.63 still
+reports it before the test ends — checked 2026-10-11 — so this is about order, not
+silence.)
+
+❌ `expect.soft(page).toHaveTitle(/Curso/);`
+✅ `await expect.soft(page).toHaveTitle(/Curso/);`
+
+Assertions on plain values are synchronous and need no `await`:
+`expect(response?.status()).toBe(200)`, `expect.soft(consoleErrors).toEqual([])`.
+
+And the check that catches all of them at once: **break it on purpose and watch it go red.**
+Change the expected text to something absent, run, confirm the failure message tells you
+what happened, revert. A test that has only ever been seen green is not known to work.
+`/review-test` makes this a required stop.
