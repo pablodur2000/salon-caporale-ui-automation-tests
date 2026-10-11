@@ -1,16 +1,16 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices, type Project } from '@playwright/test';
+import { baseURL, testEnv } from './fixtures/environments';
 
-/* Load .env when it exists (Node's built-in loader). In CI the variables come from the
- * environment instead, so a missing file is fine. */
-try {
-  process.loadEnvFile();
-} catch {
-  // no .env: fall back to the defaults below
-}
+/* Read-only suite: runs on every environment. */
+const publicProject: Project = {
+  name: 'public',
+  testDir: './tests/public',
+  use: { ...devices['Desktop Chrome'] },
+};
 
-/* The public suite is read-only, so prod is a safe default. The admin suite never uses
- * this default: its setup refuses any host that isn't on the dev allowlist. */
-const PROD_URL = 'https://salon-caporale-v2-zeta.vercel.app';
+/* Suites that write data exist only on dev, so with TEST_ENV=prod they can't even be
+ * selected. CAPOQA-8 adds the admin setup and admin projects here. */
+const devOnlyProjects: Project[] = [];
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -29,20 +29,13 @@ export default defineConfig({
   reporter: 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    /* Site under test: BASE_URL from .env or the environment, prod by default. */
-    baseURL: process.env.BASE_URL || PROD_URL,
+    /* Site under test, chosen by TEST_ENV (prod by default). See fixtures/environments.ts. */
+    baseURL,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
   },
 
-  /* One project per suite. Chromium only for now. The admin project (tests/admin, dev
-   * only) is added with its login setup in CAPOQA-8. */
-  projects: [
-    {
-      name: 'public',
-      testDir: './tests/public',
-      use: { ...devices['Desktop Chrome'] },
-    },
-  ],
+  /* One project per suite. Chromium only for now. */
+  projects: testEnv === 'dev' ? [publicProject, ...devOnlyProjects] : [publicProject],
 });

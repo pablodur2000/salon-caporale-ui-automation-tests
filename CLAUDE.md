@@ -8,7 +8,9 @@ Playwright + TypeScript UI tests for https://salon-caporale-v2-zeta.vercel.app
 1. **Page Object Model.** Page objects hold locators and user actions. **Tests hold the
    assertions.** Never put `expect` in a page object.
 2. **The admin suite never runs against prod.** It writes data and would edit the
-   client's real content. Admin runs only against the dev environment.
+   client's real content. Admin runs only against the dev environment. A test's folder
+   says what it does (`tests/public/` reads, `tests/admin/` writes); `TEST_ENV` says where
+   it runs. Public tests are read-only by enforcement: any write request fails the test.
 3. **No hard waits.** `waitForTimeout`, `networkidle` and custom retry loops are banned.
    Use web-first assertions (`await expect(locator)…`), which retry on their own.
 4. **User-facing locators.** Prefer `getByRole` with an accessible name, then label and
@@ -42,6 +44,7 @@ Read the matching doc before writing or reviewing tests:
 | Locators | [docs/qa-knowledge/locators.md](docs/qa-knowledge/locators.md) |
 | Waiting and assertions | [docs/qa-knowledge/waiting-and-assertions.md](docs/qa-knowledge/waiting-and-assertions.md) |
 | Fixtures and auth | [docs/qa-knowledge/fixtures-and-auth.md](docs/qa-knowledge/fixtures-and-auth.md) |
+| Environments: which tests run where (`TEST_ENV`, read-only guard) | [docs/qa-knowledge/environments.md](docs/qa-knowledge/environments.md) |
 | Quirks of the site under test | [docs/qa-knowledge/app-under-test.md](docs/qa-knowledge/app-under-test.md) |
 | Sources | [docs/qa-knowledge/sources.md](docs/qa-knowledge/sources.md) |
 
