@@ -73,7 +73,10 @@ For each new or changed test, break one thing at a time and confirm it goes red
 **for the expected reason**:
 
 - change the expected text or role in an assertion to something that isn't there
-- or point `BASE_URL` at a path that renders nothing
+- or point the test at a site that doesn't have the content:
+  `BASE_URL=https://example.com npx playwright test <file>`. It answers 200 but renders
+  none of our page, so it proves the test checks content, not just the status.
+  (`BASE_URL` is a whole site, not a path.)
 
 Run it, capture the failure message, then revert.
 
@@ -130,8 +133,10 @@ Never `gh pr merge`.
 - [ ] **No assertion that passes site-wide** when the test claims to check one page.
       `toBeVisible()` on the header passes on every route; it can't tell you the home
       page rendered.
-- [ ] Every `expect` is awaited. Every `expect.soft` too — an unawaited soft assertion
-      silently never runs.
+- [ ] Every web-first assertion (on a `page` or a locator) is awaited, `expect.soft`
+      included: without `await` the test moves on before the check finishes. Assertions
+      on plain values (`expect(status).toBe(200)`, `expect.soft(list).toEqual([])`) are
+      synchronous and need no `await` — don't flag them.
 - [ ] The assertions match the test's name. A test called "loads without console errors"
       must actually collect and assert on console errors.
 
