@@ -5,10 +5,13 @@ export class HomePage {
   readonly page: Page;
   readonly header: Header;
   readonly servicesHeading: Locator;
+  readonly loadingScreen: Locator;
 
   constructor(page: Page) {
     this.page = page;
     this.header = new Header(page);
+    // Full-screen "Cargando…" loader shown while the home data loads from Supabase.
+    this.loadingScreen = page.getByRole('status');
     // The home page has no <h1>. "Servicios" is the first section heading, and it's
     // hardcoded in the app (not editable from the admin), so it stands in as the main one.
     this.servicesHeading = page.getByRole('heading', { name: 'Servicios', exact: true, level: 2 });
